@@ -8,7 +8,7 @@ import TrackProductDownload from '../../base/datalayer-productdownload.es6';
 import MzpModal from '@mozilla-protocol/core/protocol/js/modal';
 
 (function (Mozilla) {
-    function onLoad() {
+    function setUpPartialContentListeners() {
         const browserHelpContent = document.getElementById('browser-help');
         const browserHelpIcon = document.getElementById('icon-browser-help');
         const installerHelpContent = document.getElementById('installer-help');
@@ -16,7 +16,6 @@ import MzpModal from '@mozilla-protocol/core/protocol/js/modal';
             '.icon-installer-help'
         );
         const downloadButtons = document.querySelectorAll('.download-link');
-        const partialTarget = document.getElementById('partial-target');
 
         function showHelpModal(modalContent, modalTitle, eventLabel) {
             MzpModal.createModal(this, modalContent, {
@@ -82,7 +81,11 @@ import MzpModal from '@mozilla-protocol/core/protocol/js/modal';
                 );
             }
         }
+    }
 
+    function onLoad() {
+        setUpPartialContentListeners();
+        const partialTarget = document.getElementById('partial-target');
         // A fetch helper since we use this in both the on click and popstate.
         // pushState is a boolean so we avoid pushing state if triggered from popstate.
         function fetchContent(url, pushState = false) {
@@ -104,6 +107,13 @@ import MzpModal from '@mozilla-protocol/core/protocol/js/modal';
                     if (pushState) {
                         history.pushState({ path: url }, '', url);
                     }
+                    const activeCStepHeaders = document.querySelectorAll(
+                        '.c-step-name:not(.t-step-disabled)'
+                    );
+                    const targetHeader =
+                        activeCStepHeaders[activeCStepHeaders.length - 1];
+                    targetHeader.focus({ preventScroll: true });
+                    setUpPartialContentListeners();
                 })
                 .catch((error) => {
                     throw new Error(
